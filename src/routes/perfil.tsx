@@ -5,8 +5,8 @@ import { Card } from '../components/ui/Card';
 export const Route = createFileRoute('/perfil')({
   beforeLoad: () => {
     // Si no está logueado y no es invitado, redirigir
-    const { token, isGuest } = useAuthStore.getState();
-    if (!token && !isGuest) {
+    const { isGuest, isAuthenticated } = useAuthStore.getState();
+    if (!isAuthenticated() && !isGuest) {
       throw redirect({
         to: '/login',
       })

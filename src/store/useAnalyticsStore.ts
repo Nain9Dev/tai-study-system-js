@@ -55,11 +55,11 @@ export const useAnalyticsStore = create<AnalyticsState>()(
       },
 
       submitIntento: async (intento) => {
-        const { token } = useAuthStore.getState();
+        const { isAuthenticated } = useAuthStore.getState();
         try {
           let finalIntento: Intento = { ...intento, id: Date.now() };
           
-          if (token) {
+          if (isAuthenticated()) {
             const result = await intentosApi.saveIntento(intento);
             if (result) finalIntento = result;
           }

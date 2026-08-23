@@ -5,13 +5,12 @@ import type { UserProfile } from '../api/endpoints/auth';
 
 interface AuthState {
   user: UserProfile | null;
-  token: string | null;
   isGuest: boolean;
   
   isAuthenticated: () => boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (nombre: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   continueAsGuest: () => void;
 }
 
@@ -19,27 +18,27 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
-      token: null,
       isGuest: false,
 
-      isAuthenticated: () => !!get().token,
+      isAuthenticated: () => !!get().user,
 
       login: async (email, password) => {
         const response = await authApi.login(email, password);
-        set({ user: response.user, token: response.token, isGuest: false });
+        set({ user: response.user, isGuest: false });
       },
 
       register: async (nombre, email, password) => {
         const response = await authApi.register(nombre, email, password);
-        set({ user: response.user, token: response.token, isGuest: false });
+        set({ user: response.user, isGuest: false });
       },
 
-      logout: () => {
-        set({ user: null, token: null, isGuest: false });
+      logout: async () => {
+        await authApi.logout();
+        set({ user: null, isGuest: false });
       },
 
       continueAsGuest: () => {
-        set({ user: null, token: null, isGuest: true });
+        set({ user: null, isGuest: true });
       }
     }),
     {

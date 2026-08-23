@@ -1,4 +1,5 @@
 // src/api/client.ts
+import { offlineQueue } from './offlineQueue';
 
 export class ApiError extends Error {
   status: number;
@@ -24,7 +25,10 @@ class ApiClient {
   })();
   private readonly staticBaseUrl = import.meta.env.BASE_URL + 'data';
 
-  private constructor() {}
+  private constructor() {
+    // Escuchar cuando vuelva el internet para intentar vaciar la cola
+    window.addEventListener('online', () => this.syncOfflineQueue());
+  }
 
   public static getInstance(): ApiClient {
     if (!ApiClient.instance) {
@@ -45,29 +49,17 @@ class ApiClient {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
 
-    // Read token from zustand persisted storage
-    let token = null;
-    try {
-      const authState = localStorage.getItem('nain_tai_auth_v1');
-      if (authState) {
-        token = JSON.parse(authState).state?.token;
-      }
-    } catch(e) {}
-
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       ...((options.headers as Record<string, string>) || {}),
     };
 
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
     try {
       const response = await fetch(url, {
         ...options,
         headers,
+        credentials: 'include', // Clave para enviar la Cookie HttpOnly automáticamente
         signal: controller.signal,
       });
       clearTimeout(id);
@@ -113,11 +105,6 @@ class ApiClient {
   }
 
   public async post<T, D>(path: string, data: D): Promise<T | null> {
-    if (this.mode === 'static') {
-      // Offline mode prevents real POST requests, simulates success
-      return null;
-    }
-
     try {
       const response = await this.fetchWithTimeout(`${this.baseUrl}${path}`, {
         method: 'POST',
@@ -125,15 +112,55 @@ class ApiClient {
       });
       this.handleHttpError(response);
       this.mode = 'local';
-      return await response.json();
+      
+      // Si fue exitoso, intentar sincronizar cola pendiente
+      this.syncOfflineQueue();
+      
+      // Si la respuesta es vacía, no intentar parsear JSON
+      const text = await response.text();
+      return text ? JSON.parse(text) : null;
     } catch (error: any) {
       console.warn(`[ApiClient] POST ${path} failed. Cannot fallback POST requests.`, error);
-      this.mode = 'static';
-      // Si el error es de red o 404 (ej. en GitHub Pages), lanzamos un error más amigable
-      if ((error instanceof TypeError && error.message.includes('fetch')) || (error instanceof ApiError && error.status === 404)) {
-        throw new ApiError(503, 'No se pudo conectar con el servidor. Verifica que el backend esté en ejecución o continúa como invitado.');
+      
+      const isNetworkError = error instanceof TypeError && error.message.includes('fetch');
+      const isAbortError = error.name === 'AbortError';
+      
+      // Si es un error de red o timeout, lo añadimos a la cola offline (excepto peticiones de login/registro)
+      if ((isNetworkError || isAbortError || this.mode === 'static') && !path.includes('/auth/')) {
+        offlineQueue.addRequest(path, 'POST', data);
+        this.mode = 'static';
+        return null; // Resolvemos silenciosamente para que la UI no crashee
       }
-      throw error;
+      
+      throw error; // Errores de negocio (400, 401, 500) se lanzan normal
+    }
+  }
+
+  public async syncOfflineQueue() {
+    const requests = offlineQueue.getPendingRequests();
+    if (requests.length === 0) return;
+
+    console.info(`[ApiClient] Sincronizando cola offline: ${requests.length} peticiones pendientes`);
+    
+    for (const req of requests) {
+      try {
+        const response = await this.fetchWithTimeout(`${this.baseUrl}${req.path}`, {
+          method: req.method,
+          body: JSON.stringify(req.body),
+        });
+        
+        if (response.ok) {
+          offlineQueue.removeRequest(req.id);
+        } else if (response.status >= 400 && response.status < 500) {
+          // Errores de cliente (ej. 400 Bad Request, 401 Unauthorized), la petición es inválida y no se reintentará
+          console.warn(`[ApiClient] Eliminando petición inválida de la cola (HTTP ${response.status})`);
+          offlineQueue.removeRequest(req.id);
+        }
+      } catch (error) {
+        // Fallo de red nuevamente, abortamos sincronización por ahora
+        console.warn(`[ApiClient] Sincronización abortada por fallo de red`);
+        break; 
+      }
     }
   }
 

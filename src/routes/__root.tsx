@@ -6,10 +6,10 @@ import '../styles/main.css';
 
 export const Route = createRootRoute({
   beforeLoad: ({ location }) => {
-    const { token, isGuest } = useAuthStore.getState();
+    const { isGuest, isAuthenticated } = useAuthStore.getState();
     const isAuthRoute = location.pathname === '/login' || location.pathname === '/register';
     
-    if (!token && !isGuest && !isAuthRoute) {
+    if (!isAuthenticated() && !isGuest && !isAuthRoute) {
       throw redirect({ to: '/login' });
     }
   },

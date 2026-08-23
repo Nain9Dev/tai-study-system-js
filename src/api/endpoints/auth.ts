@@ -8,12 +8,10 @@ export interface UserProfile {
 }
 
 export interface AuthResponse {
-  token: string;
   user: UserProfile;
 }
 
 const mockAuthResponse = (nombre: string, email: string): AuthResponse => ({
-  token: 'mock-jwt-token-offline-mode',
   user: {
     id: Date.now(),
     nombre,
@@ -46,6 +44,15 @@ export const authApi = {
         return mockAuthResponse(nombre, email);
       }
       throw error;
+    }
+  },
+
+  logout: async (): Promise<void> => {
+    try {
+      await apiClient.post('/auth/logout', {});
+    } catch (error) {
+      // Ignoramos error al hacer logout, simplemente se borrará la cookie si el backend responde
+      console.warn("Error during logout on backend", error);
     }
   }
 };
