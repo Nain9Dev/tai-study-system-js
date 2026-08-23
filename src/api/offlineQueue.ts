@@ -1,4 +1,6 @@
 // src/api/offlineQueue.ts
+import { openDB } from 'idb';
+import type { IDBPDatabase } from 'idb';
 
 export interface QueuedRequest {
   id: string;
@@ -8,49 +10,62 @@ export interface QueuedRequest {
   timestamp: number;
 }
 
-const QUEUE_KEY = 'nain_tai_offline_queue';
+const DB_NAME = 'nain_tai_offline_db';
+const STORE_NAME = 'requests_queue';
 
 class OfflineQueue {
-  private getQueue(): QueuedRequest[] {
-    try {
-      const data = localStorage.getItem(QUEUE_KEY);
-      return data ? JSON.parse(data) : [];
-    } catch {
-      return [];
-    }
+  private dbPromise: Promise<IDBPDatabase>;
+
+  constructor() {
+    this.dbPromise = openDB(DB_NAME, 1, {
+      upgrade(db) {
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+        }
+      },
+    });
   }
 
-  private saveQueue(queue: QueuedRequest[]) {
-    localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
-    // Notificamos a la UI (SyncIndicator) que la cola ha cambiado
-    window.dispatchEvent(new CustomEvent('offlineQueue:updated', { detail: queue.length }));
+  private notifyUI(count: number) {
+    window.dispatchEvent(new CustomEvent('offlineQueue:updated', { detail: count }));
   }
 
-  public addRequest(path: string, method: string, body: any) {
-    const queue = this.getQueue();
-    queue.push({
+  public async addRequest(path: string, method: string, body: any) {
+    const db = await this.dbPromise;
+    const request: QueuedRequest = {
       id: crypto.randomUUID(),
       path,
       method,
       body,
       timestamp: Date.now(),
-    });
-    this.saveQueue(queue);
-    console.info(`[OfflineQueue] Request añadida a la cola. Pendientes: ${queue.length}`);
+    };
+    
+    await db.put(STORE_NAME, request);
+    
+    const count = await db.count(STORE_NAME);
+    this.notifyUI(count);
+    console.info(`[OfflineQueue] Request añadida a la cola de IndexedDB. Pendientes: ${count}`);
   }
 
-  public getPendingRequests(): QueuedRequest[] {
-    return this.getQueue();
+  public async getPendingRequests(): Promise<QueuedRequest[]> {
+    const db = await this.dbPromise;
+    const all = await db.getAll(STORE_NAME);
+    return all.sort((a, b) => a.timestamp - b.timestamp);
   }
 
-  public removeRequest(id: string) {
-    const queue = this.getQueue().filter(req => req.id !== id);
-    this.saveQueue(queue);
+  public async removeRequest(id: string) {
+    const db = await this.dbPromise;
+    await db.delete(STORE_NAME, id);
+    const count = await db.count(STORE_NAME);
+    this.notifyUI(count);
   }
 
-  public clearQueue() {
-    this.saveQueue([]);
+  public async clearQueue() {
+    const db = await this.dbPromise;
+    await db.clear(STORE_NAME);
+    this.notifyUI(0);
   }
 }
 
 export const offlineQueue = new OfflineQueue();
+

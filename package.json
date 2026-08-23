@@ -12,6 +12,7 @@
   "dependencies": {
     "@tanstack/react-router": "^1.170.32",
     "axios": "^1.19.0",
+    "idb": "^8.0.3",
     "lucide-react": "^1.33.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

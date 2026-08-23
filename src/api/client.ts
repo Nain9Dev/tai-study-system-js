@@ -127,7 +127,7 @@ class ApiClient {
       
       // Si es un error de red o timeout, lo añadimos a la cola offline (excepto peticiones de login/registro)
       if ((isNetworkError || isAbortError || this.mode === 'static') && !path.includes('/auth/')) {
-        offlineQueue.addRequest(path, 'POST', data);
+        await offlineQueue.addRequest(path, 'POST', data);
         this.mode = 'static';
         return null; // Resolvemos silenciosamente para que la UI no crashee
       }
@@ -137,7 +137,7 @@ class ApiClient {
   }
 
   public async syncOfflineQueue() {
-    const requests = offlineQueue.getPendingRequests();
+    const requests = await offlineQueue.getPendingRequests();
     if (requests.length === 0) return;
 
     console.info(`[ApiClient] Sincronizando cola offline: ${requests.length} peticiones pendientes`);
@@ -150,11 +150,11 @@ class ApiClient {
         });
         
         if (response.ok) {
-          offlineQueue.removeRequest(req.id);
+          await offlineQueue.removeRequest(req.id);
         } else if (response.status >= 400 && response.status < 500) {
           // Errores de cliente (ej. 400 Bad Request, 401 Unauthorized), la petición es inválida y no se reintentará
           console.warn(`[ApiClient] Eliminando petición inválida de la cola (HTTP ${response.status})`);
-          offlineQueue.removeRequest(req.id);
+          await offlineQueue.removeRequest(req.id);
         }
       } catch (error) {
         // Fallo de red nuevamente, abortamos sincronización por ahora
