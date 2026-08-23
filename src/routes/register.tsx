@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import styles from './Auth.module.css';
 
 export const Route = createFileRoute('/register')({
   component: Register,
@@ -43,61 +44,67 @@ function Register() {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '2rem auto' }}>
-      <Card title="Crear Cuenta">
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-          {error && <div style={{ color: 'var(--color-danger)', fontSize: '0.9rem' }}>{error}</div>}
-          
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Nombre</label>
-            <input 
-              type="text" 
-              required 
-              value={nombre} 
-              onChange={e => setNombre(e.target.value)}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--color-line)', background: 'var(--color-bg-alt)', color: 'var(--color-text)' }}
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Email</label>
-            <input 
-              type="email" 
-              required 
-              value={email} 
-              onChange={e => setEmail(e.target.value)}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--color-line)', background: 'var(--color-bg-alt)', color: 'var(--color-text)' }}
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Contraseña</label>
-            <input 
-              type="password" 
-              required 
-              value={password} 
-              onChange={e => setPassword(e.target.value)}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--color-line)', background: 'var(--color-bg-alt)', color: 'var(--color-text)' }}
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Confirmar Contraseña</label>
-            <input 
-              type="password" 
-              required 
-              value={confirmPassword} 
-              onChange={e => setConfirmPassword(e.target.value)}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--color-line)', background: 'var(--color-bg-alt)', color: 'var(--color-text)' }}
-            />
-          </div>
+    <div className={styles.authContainer}>
+      <div className={styles.authWrapper}>
+        <Card title="Crear Cuenta">
+          <form onSubmit={handleSubmit} className={styles.authForm}>
+            {error && <div className={styles.errorMessage}>{error}</div>}
+            
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Nombre</label>
+              <input 
+                type="text" 
+                required 
+                value={nombre} 
+                onChange={e => setNombre(e.target.value)}
+                className={styles.input}
+                placeholder="Tu nombre completo"
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Email</label>
+              <input 
+                type="email" 
+                required 
+                value={email} 
+                onChange={e => setEmail(e.target.value)}
+                className={styles.input}
+                placeholder="tu@email.com"
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Contraseña</label>
+              <input 
+                type="password" 
+                required 
+                value={password} 
+                onChange={e => setPassword(e.target.value)}
+                className={styles.input}
+                placeholder="••••••••"
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Confirmar Contraseña</label>
+              <input 
+                type="password" 
+                required 
+                value={confirmPassword} 
+                onChange={e => setConfirmPassword(e.target.value)}
+                className={styles.input}
+                placeholder="••••••••"
+              />
+            </div>
 
-          <Button type="submit" disabled={isLoading} style={{ marginTop: '1rem' }}>
-            {isLoading ? 'Registrando...' : 'Registrarse'}
-          </Button>
-        </form>
+            <Button type="submit" disabled={isLoading} style={{ marginTop: '0.5rem' }}>
+              {isLoading ? 'Registrando...' : 'Registrarse'}
+            </Button>
+          </form>
 
-        <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
-          ¿Ya tienes cuenta? <Link to="/login" style={{ color: 'var(--color-primary)' }}>Inicia sesión aquí</Link>
-        </div>
-      </Card>
+          <div className={styles.authLinks}>
+            ¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
