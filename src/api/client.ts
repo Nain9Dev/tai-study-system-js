@@ -14,7 +14,14 @@ type ConnectionMode = 'local' | 'static' | 'loading';
 class ApiClient {
   private static instance: ApiClient;
   private mode: ConnectionMode = 'loading';
-  private readonly baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5298/api';
+  private readonly baseUrl = (() => {
+    let url = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5298/api';
+    url = url.replace(/\/+$/, ''); // Remove trailing slashes
+    if (!url.endsWith('/api')) {
+      url += '/api';
+    }
+    return url;
+  })();
   private readonly staticBaseUrl = import.meta.env.BASE_URL + 'data';
 
   private constructor() {}
