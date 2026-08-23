@@ -28,7 +28,7 @@ export function Header() {
           <Link to="/analytics" className={styles.link} activeProps={{ className: styles.linkActive }}>
             Estadísticas
           </Link>
-          <a href="https://naindev.com" className={styles.link} target="_blank" rel="noopener noreferrer">
+          <a href="https://www.naindev.com" className={styles.link} target="_blank" rel="noopener noreferrer">
             Portfolio
           </a>
           <Link to="/perfil" className={styles.link} activeProps={{ className: styles.linkActive }}>
