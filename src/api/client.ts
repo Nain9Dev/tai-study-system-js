@@ -122,8 +122,8 @@ class ApiClient {
     } catch (error: any) {
       console.warn(`[ApiClient] POST ${path} failed. Cannot fallback POST requests.`, error);
       this.mode = 'static';
-      // Si el error es de red (e.g. Failed to fetch), lanzamos un error más amigable
-      if (error instanceof TypeError && error.message.includes('fetch')) {
+      // Si el error es de red o 404 (ej. en GitHub Pages), lanzamos un error más amigable
+      if ((error instanceof TypeError && error.message.includes('fetch')) || (error instanceof ApiError && error.status === 404)) {
         throw new ApiError(503, 'No se pudo conectar con el servidor. Verifica que el backend esté en ejecución o continúa como invitado.');
       }
       throw error;
