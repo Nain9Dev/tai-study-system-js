@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sistema Oposiciones TAI | Plataforma de Estudio y Simulacros</title>
+  <meta name="description" content="Plataforma interactiva de formación y autoevaluación para Oposiciones TAI (INAP). Baremación oficial, modo estudio y analítica de rendimiento en tiempo real." />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="nav-shell">
+      <a href="/" class="back-link">← Volver al Portafolio NainDev</a>
+      <span id="modeBadge" class="badge">Conexión: Inicializando...</span>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="header-banner">
+      <h1>Sistema de Oposiciones TAI - Administración General</h1>
+      <p>Plataforma inteligente de autoevaluación interactiva con baremo oficial INAP (+1,0 / -0,33), modo de estudio en tiempo real y analítica persistente sin coste de servidor.</p>
+    </header>
+
+    <div class="tabs-header">
+      <button id="tabSimulacroBtn" class="tab-btn active">Simulacro y Test TAI</button>
+      <button id="tabAnalyticBtn" class="tab-btn">Mi Rendimiento y Estadísticas</button>
+    </div>
+
+    <section id="viewSimulacro">
+      <div class="card" id="configSection">
+        <h2>Configuración de la Prueba</h2>
+        <div class="grid">
+          <label>
+            Bloque del Temario
+            <select id="blockSelect"></select>
+          </label>
+          <label>
+            Tema Específico
+            <select id="topicSelect"></select>
+          </label>
+          <label>
+            Nivel de Dificultad
+            <select id="difficultySelect">
+              <option value="0">Todas las dificultades</option>
+              <option value="1">1 - Básico / Fundamentos</option>
+              <option value="2">2 - Intermedio / Normativa</option>
+              <option value="3">3 - Avanzado / Arquitectura</option>
+              <option value="4">4 - Nivel Examen Oficial</option>
+            </select>
+          </label>
+          <label>
+            Número de Preguntas
+            <select id="countSelect">
+              <option value="10">10 preguntas</option>
+              <option value="20">20 preguntas (Estándar rápido)</option>
+              <option value="30">30 preguntas</option>
+              <option value="50">50 preguntas (Simulacro largo)</option>
+            </select>
+          </label>
+        </div>
+
+        <div style="margin-top: 22px;">
+          <label>Modalidad de Prueba y Evaluación:</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="studyMode" value="study" checked />
+              <span><b>Modo Estudio / Repaso</b> (Corrección inmediata y retroalimentación tras cada clic)</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="studyMode" value="exam" />
+              <span><b>Modo Examen Oficial INAP</b> (Con cronómetro de cuenta atrás y baremación +1 / -0,33)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="row-actions">
+          <button id="generateBtn" class="button-primary">Generar y Comenzar Simulacro</button>
+          <span class="muted" style="font-size: 13px;">Base de datos en memoria lista</span>
+        </div>
+      </div>
+
+      <div id="testSection" class="card hidden">
+        <div id="timerBanner" class="timer-banner hidden">
+          <span>Tiempo Restante del Simulacro Oficial:</span>
+          <strong id="timerDisplay">00:00</strong>
+        </div>
+        <h2 id="testTitle">Simulacro en Curso</h2>
+        <div id="questionHost"></div>
+        
+        <div class="row-actions">
+          <button id="finishBtn" class="button-primary">Finalizar y Evaluar Examen</button>
+          <button id="cancelBtn" class="button-secondary">Abandonar Simulacro</button>
+        </div>
+      </div>
+
+      <div id="resultSection" class="card hidden">
+        <h2>Resultado Oficial de la Evaluación (Baremo INAP)</h2>
+        <div class="kpi-grid" id="examScoreGrid"></div>
+        <div id="examAdviceBox" style="margin-bottom: 20px;"></div>
+        <div class="row-actions">
+          <button id="reviewBtn" class="button-secondary">Revisar Soluciones Detalladas</button>
+          <button id="newTestBtn" class="button-primary">Configurar Nuevo Simulacro</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="viewAnalytics" class="hidden">
+      <div class="card">
+        <h2>Panel de Rendimiento Opositor (Almacenamiento Local)</h2>
+        <p class="muted">Tus resultados y precisión se custodian en privado en tu navegador (<code>localStorage</code>), permitiéndote estudiar a diario con analítica persistente sin pagar servidores de bases de datos cloud.</p>
+        
+        <div class="kpi-grid" id="analyticsKpiGrid">
+          <div class="kpi-card">
+            <div class="kpi-title">Total Simulacros</div>
+            <div class="kpi-value" id="kpiTotalTests">0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Nota Media Oficial INAP</div>
+            <div class="kpi-value" id="kpiAvgScore">0.00 / 10</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Tasa General Aciertos</div>
+            <div class="kpi-value" id="kpiWinRate">0 %</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Preguntas Contestadas</div>
+            <div class="kpi-value" id="kpiTotalQuestions">0</div>
+          </div>
+        </div>
+
+        <h3>Desglose de Precisión por Bloque Temario</h3>
+        <table class="table-responsive">
+          <thead>
+            <tr>
+              <th>Bloque del Temario TAI</th>
+              <th>Preguntas Respondidas</th>
+              <th>Aciertos / Fallos</th>
+              <th>Precisión y Nivel de Dominio</th>
+            </tr>
+          </thead>
+          <tbody id="blockStatsTableBody">
+            <tr><td colspan="4" class="muted">No hay suficientes datos registrados todavía. Realiza un simulacro para generar estadísticas.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="row-actions">
+          <button id="resetStatsBtn" class="button-secondary" style="color: #ef4444; border-color: #ef4444;">Reiniciar Historial y Estadísticas</button>
+          <span class="muted" style="font-size: 13px;">Sincronización local en curso</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
