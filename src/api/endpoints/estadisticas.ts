@@ -3,6 +3,6 @@ import type { Estadisticas } from '../../types/domain';
 
 export const estadisticasApi = {
   getEstadisticas: (): Promise<Estadisticas> => {
-    return apiClient.get<Estadisticas>('/analytics', 'analytics_mock.json');
+    return apiClient.get<Estadisticas>('/estadisticas', 'estadisticas_mock.json');
   }
 };

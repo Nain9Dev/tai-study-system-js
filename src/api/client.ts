@@ -15,7 +15,7 @@ class ApiClient {
   private static instance: ApiClient;
   private mode: ConnectionMode = 'loading';
   private readonly baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5298/api';
-  private readonly staticBaseUrl = '/data';
+  private readonly staticBaseUrl = import.meta.env.BASE_URL + 'data';
 
   private constructor() {}
 
