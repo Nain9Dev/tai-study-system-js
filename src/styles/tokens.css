@@ -1,23 +1,23 @@
 :root {
   /* Brand Colors */
-  --color-primary: #06b6d4; /* Cyan */
-  --color-primary-alt: #3b82f6; /* Blue */
-  --color-primary-strong: #0891b2;
+  --color-primary: #00d2ff; /* Bright Cyan */
+  --color-primary-alt: #3a7bd5; /* Deep Blue */
+  --color-primary-strong: #00e5ff;
   
   /* Backgrounds */
-  --color-bg: #0a0a0f;
-  --color-surface: rgba(26, 26, 46, 0.7); /* Glassmorphism support */
-  --color-surface-hover: rgba(30, 30, 50, 0.9);
-  --color-surface-solid: #1a1a2e;
+  --color-bg: #030305; /* Near black */
+  --color-surface: rgba(12, 12, 16, 0.45); /* Enhanced Glassmorphism support */
+  --color-surface-hover: rgba(20, 20, 30, 0.65);
+  --color-surface-solid: #0d0d12;
   
   /* Borders */
-  --color-line: rgba(42, 42, 62, 0.8);
-  --color-line-focus: rgba(6, 182, 212, 0.5);
+  --color-line: rgba(255, 255, 255, 0.08);
+  --color-line-focus: rgba(0, 210, 255, 0.5);
   
   /* Text */
   --color-text-h: #ffffff;
-  --color-text: #c8c8d4;
-  --color-text-muted: #8888aa;
+  --color-text: #a0a0b0;
+  --color-text-muted: #6b6b80;
   
   /* Status */
   --color-success: #10b981;
@@ -47,9 +47,9 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-  --shadow-glow: 0 0 15px rgba(6, 182, 212, 0.3);
+  --shadow-glow: 0 0 20px rgba(0, 210, 255, 0.25);
   
   /* Transitions */
-  --transition-fast: 0.15s ease-in-out;
-  --transition-base: 0.25s ease-in-out;
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
