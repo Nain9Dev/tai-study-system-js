@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { authApi } from '../api/endpoints/auth';
 import type { UserProfile } from '../api/endpoints/auth';
+import { useCsrfStore } from './useCsrfStore';
 
 interface AuthState {
   user: UserProfile | null;
@@ -24,16 +25,23 @@ export const useAuthStore = create<AuthState>()(
 
       login: async (email, password) => {
         const response = await authApi.login(email, password);
+        if (response.csrfToken) {
+          useCsrfStore.getState().setToken(response.csrfToken);
+        }
         set({ user: response.user, isGuest: false });
       },
 
       register: async (nombre, email, password) => {
         const response = await authApi.register(nombre, email, password);
+        if (response.csrfToken) {
+          useCsrfStore.getState().setToken(response.csrfToken);
+        }
         set({ user: response.user, isGuest: false });
       },
 
       logout: async () => {
         await authApi.logout();
+        useCsrfStore.getState().clearToken();
         set({ user: null, isGuest: false });
       },
 

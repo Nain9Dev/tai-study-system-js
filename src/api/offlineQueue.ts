@@ -1,6 +1,7 @@
 // src/api/offlineQueue.ts
 import { openDB } from 'idb';
 import type { IDBPDatabase } from 'idb';
+import { useCsrfStore } from '../store/useCsrfStore';
 
 export interface QueuedRequest {
   id: string;
@@ -8,6 +9,7 @@ export interface QueuedRequest {
   method: string;
   body: any;
   timestamp: number;
+  csrfToken?: string;
 }
 
 const DB_NAME = 'nain_tai_offline_db';
@@ -38,6 +40,7 @@ class OfflineQueue {
       method,
       body,
       timestamp: Date.now(),
+      csrfToken: useCsrfStore.getState().token || undefined,
     };
     
     await db.put(STORE_NAME, request);

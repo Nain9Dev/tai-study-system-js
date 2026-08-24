@@ -9,6 +9,7 @@ export interface UserProfile {
 
 export interface AuthResponse {
   user: UserProfile;
+  csrfToken?: string;
 }
 
 const mockAuthResponse = (nombre: string, email: string): AuthResponse => ({
@@ -17,7 +18,8 @@ const mockAuthResponse = (nombre: string, email: string): AuthResponse => ({
     nombre,
     email,
     rol: 'student'
-  }
+  },
+  csrfToken: 'mock-csrf-token'
 });
 
 export const authApi = {

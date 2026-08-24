@@ -1,5 +1,6 @@
 // src/api/client.ts
 import { offlineQueue } from './offlineQueue';
+import { useCsrfStore } from '../store/useCsrfStore';
 
 export class ApiError extends Error {
   status: number;
@@ -55,6 +56,14 @@ class ApiClient {
       ...((options.headers as Record<string, string>) || {}),
     };
 
+    const method = options.method?.toUpperCase() || 'GET';
+    const csrfToken = useCsrfStore.getState().token;
+    
+    // Solo añadir si no viene ya en los headers de las options (para la offline queue)
+    if (!headers['X-CSRF-Token'] && csrfToken && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+      headers['X-CSRF-Token'] = csrfToken;
+    }
+
     try {
       const response = await fetch(url, {
         ...options,
@@ -72,10 +81,13 @@ class ApiClient {
 
   private handleHttpError(response: Response) {
     if (!response.ok) {
-      if (response.status === 401) {
+      if (response.status === 401 || response.status === 403) {
         // Dispara evento para que el frontend haga logout
+        if (response.status === 403) {
+          useCsrfStore.getState().clearToken();
+        }
         window.dispatchEvent(new Event('auth:unauthorized'));
-        throw new ApiError(401, 'No autorizado o sesión expirada. Inicie sesión nuevamente.');
+        throw new ApiError(response.status, 'No autorizado, sesión expirada o CSRF inválido. Inicie sesión nuevamente.');
       }
       if (response.status === 404) throw new ApiError(404, 'Recurso no encontrado.');
       if (response.status >= 500) throw new ApiError(response.status, 'Error interno del servidor.');
@@ -144,17 +156,29 @@ class ApiClient {
     
     for (const req of requests) {
       try {
+        const headers: Record<string, string> = {};
+        if (req.csrfToken) {
+          headers['X-CSRF-Token'] = req.csrfToken;
+        }
+
         const response = await this.fetchWithTimeout(`${this.baseUrl}${req.path}`, {
           method: req.method,
           body: JSON.stringify(req.body),
+          headers
         });
         
         if (response.ok) {
           await offlineQueue.removeRequest(req.id);
         } else if (response.status >= 400 && response.status < 500) {
-          // Errores de cliente (ej. 400 Bad Request, 401 Unauthorized), la petición es inválida y no se reintentará
+          // Errores de cliente (ej. 400 Bad Request, 401 Unauthorized, 403 Forbidden), la petición es inválida
           console.warn(`[ApiClient] Eliminando petición inválida de la cola (HTTP ${response.status})`);
           await offlineQueue.removeRequest(req.id);
+          
+          if (response.status === 403 || response.status === 401) {
+            // El token CSRF o la sesión expiraron
+            useCsrfStore.getState().clearToken();
+            window.dispatchEvent(new Event('auth:unauthorized'));
+          }
         }
       } catch (error) {
         // Fallo de red nuevamente, abortamos sincronización por ahora
