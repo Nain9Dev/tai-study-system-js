@@ -4,6 +4,7 @@ import { Select } from '../../components/ui/Select';
 import { Button } from '../../components/ui/Button';
 import { usePreguntas } from '../../hooks/usePreguntas';
 import { useStudyStore } from '../../store/useStudyStore';
+import { apiClient } from '../../api/client';
 import type { StudyMode } from '../../store/useStudyStore';
 import styles from './SetupForm.module.css';
 
@@ -11,8 +12,9 @@ export function SetupForm() {
   const [selectedBlock, setSelectedBlock] = useState('all');
   const [localMode, setLocalMode] = useState<StudyMode>('study');
   
-  const { fetchPreguntas, isLoading, error, isOfflineMode } = usePreguntas();
+  const { mutateAsync: fetchPreguntas, isPending: isLoading, error } = usePreguntas();
   const setMode = useStudyStore((state) => state.setMode);
+  const isOfflineMode = apiClient.getMode() === 'static';
 
   const handleGenerate = async () => {
     setMode(localMode);
@@ -24,7 +26,7 @@ export function SetupForm() {
       <div className={styles.setupContainer}>
         {error && (
           <div className={styles.errorBanner}>
-            {error}
+            {error instanceof Error ? error.message : 'Error desconocido'}
           </div>
         )}
 

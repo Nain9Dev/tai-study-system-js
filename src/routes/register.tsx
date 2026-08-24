@@ -57,7 +57,6 @@ function Register() {
                 required 
                 value={nombre} 
                 onChange={e => setNombre(e.target.value)}
-                className={styles.input}
                 placeholder="Tu nombre completo"
               />
             </div>
@@ -68,7 +67,6 @@ function Register() {
                 required 
                 value={email} 
                 onChange={e => setEmail(e.target.value)}
-                className={styles.input}
                 placeholder="tu@email.com"
               />
             </div>
@@ -79,7 +77,6 @@ function Register() {
                 required 
                 value={password} 
                 onChange={e => setPassword(e.target.value)}
-                className={styles.input}
                 placeholder="••••••••"
               />
             </div>
@@ -90,7 +87,6 @@ function Register() {
                 required 
                 value={confirmPassword} 
                 onChange={e => setConfirmPassword(e.target.value)}
-                className={styles.input}
                 placeholder="••••••••"
               />
             </div>

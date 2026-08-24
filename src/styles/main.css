@@ -8,29 +8,29 @@
 }
 
 body {
-  font-family: var(--font-sans);
-  background-color: var(--color-bg);
-  color: var(--color-text);
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-secondary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
-  color: var(--color-text-h);
+  font-family: var(--font-display);
+  color: var(--text-primary);
   font-weight: 600;
   line-height: 1.2;
 }
 
 a {
-  color: var(--color-primary);
+  color: var(--accent-cyan);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--color-primary-strong);
+  color: var(--accent-blue);
 }
 
 button {
@@ -40,8 +40,24 @@ button {
   background: none;
 }
 
-input, textarea {
-  font-family: inherit;
+input[type="text"], input[type="email"], input[type="password"], textarea, select {
+  font-family: var(--font-body);
+  background-color: var(--bg-glass);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+}
+
+input[type="text"]::placeholder, input[type="email"]::placeholder, input[type="password"]::placeholder, textarea::placeholder {
+  color: var(--text-muted);
 }
 
 /* Utilities */
@@ -56,5 +72,5 @@ input, textarea {
 }
 
 .muted {
-  color: var(--color-text-muted);
+  color: var(--text-muted);
 }

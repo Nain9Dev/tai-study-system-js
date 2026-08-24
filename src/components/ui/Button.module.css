@@ -5,7 +5,7 @@
   gap: var(--spacing-2);
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-md);
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   font-weight: 500;
   font-size: 1rem;
   transition: all var(--transition-base);
@@ -16,46 +16,60 @@
 }
 
 .button:focus-visible {
-  box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-primary);
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent-cyan);
 }
 
 .primary {
-  background: linear-gradient(135deg, var(--color-primary-strong), var(--color-primary-alt));
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
   color: #ffffff;
-  box-shadow: 0 4px 15px rgba(0, 210, 255, 0.2);
+  box-shadow: 0 4px 15px var(--accent-glow);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .primary:hover:not(:disabled) {
   box-shadow: var(--shadow-glow);
-  transform: translateY(-1px);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-alt));
+  transform: scale(1.02);
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+}
+
+.primary:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .secondary {
-  background-color: var(--color-surface);
-  color: var(--color-text-h);
-  border-color: var(--color-line);
-  backdrop-filter: blur(12px);
+  background-color: var(--bg-glass);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+  backdrop-filter: blur(var(--glass-blur));
 }
 
 .secondary:hover:not(:disabled) {
-  background-color: var(--color-surface-hover);
-  border-color: rgba(0, 210, 255, 0.4);
-  box-shadow: 0 0 15px rgba(0, 210, 255, 0.1);
+  background-color: var(--bg-glass-hover);
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-glow);
+  transform: scale(1.02);
+}
+
+.secondary:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .danger {
   background-color: rgba(239, 68, 68, 0.05);
-  color: var(--color-danger);
+  color: var(--status-danger);
   border-color: rgba(239, 68, 68, 0.3);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(var(--glass-blur));
 }
 
 .danger:hover:not(:disabled) {
   background-color: rgba(239, 68, 68, 0.15);
-  border-color: var(--color-danger);
+  border-color: var(--status-danger);
   box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+  transform: scale(1.02);
+}
+
+.danger:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .button:disabled {

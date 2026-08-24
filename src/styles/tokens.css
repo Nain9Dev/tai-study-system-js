@@ -1,32 +1,32 @@
 :root {
-  /* Brand Colors */
-  --color-primary: #00d2ff; /* Bright Cyan */
-  --color-primary-alt: #3a7bd5; /* Deep Blue */
-  --color-primary-strong: #00e5ff;
+  /* Brand Colors / Accents */
+  --accent-blue: #3b82f6;
+  --accent-cyan: #0ea5e9;
+  --accent-glow: rgba(14, 165, 233, 0.25);
   
   /* Backgrounds */
-  --color-bg: #030305; /* Near black */
-  --color-surface: rgba(12, 12, 16, 0.45); /* Enhanced Glassmorphism support */
-  --color-surface-hover: rgba(20, 20, 30, 0.65);
-  --color-surface-solid: #0d0d12;
+  --bg-primary: #09090b;
+  --bg-surface: #18181b;
+  --bg-glass: rgba(24, 24, 27, 0.65);
+  --bg-glass-hover: rgba(39, 39, 42, 0.75);
   
   /* Borders */
-  --color-line: rgba(255, 255, 255, 0.08);
-  --color-line-focus: rgba(0, 210, 255, 0.5);
+  --border-color: #27272a;
+  --border-focus: rgba(14, 165, 233, 0.5);
   
   /* Text */
-  --color-text-h: #ffffff;
-  --color-text: #a0a0b0;
-  --color-text-muted: #6b6b80;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
   
   /* Status */
-  --color-success: #10b981;
-  --color-danger: #ef4444;
-  --color-warning: #f59e0b;
+  --status-success: #10b981;
+  --status-danger: #ef4444;
+  --status-warning: #f59e0b;
   
   /* Typography */
-  --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
   
   /* Spacing */
   --spacing-1: 0.25rem;
@@ -38,16 +38,19 @@
   --spacing-10: 2.5rem;
   --spacing-12: 3rem;
   
-  /* Radius & Shadows */
+  /* Radius, Shadows & Effects */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
+  --radius-full: 9999px;
   
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-  --shadow-glow: 0 0 20px rgba(0, 210, 255, 0.25);
+  --shadow-glow: 0 0 20px var(--accent-glow);
+  
+  --glass-blur: 12px;
   
   /* Transitions */
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);

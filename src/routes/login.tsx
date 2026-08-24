@@ -51,7 +51,6 @@ function Login() {
                 required 
                 value={email} 
                 onChange={e => setEmail(e.target.value)}
-                className={styles.input}
                 placeholder="tu@email.com"
               />
             </div>
@@ -62,7 +61,6 @@ function Login() {
                 required 
                 value={password} 
                 onChange={e => setPassword(e.target.value)}
-                className={styles.input}
                 placeholder="••••••••"
               />
             </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useStudyStore } from '../../store/useStudyStore';
-import { useAnalyticsStore } from '../../store/useAnalyticsStore';
+import { useSubmitIntento } from '../../hooks/useQueries';
 import { calculateINAPScore } from '../../utils/scoring';
 import { QuestionCard } from '../study/QuestionCard';
 import { Button } from '../../components/ui/Button';
@@ -15,7 +15,7 @@ export function ExamEngine() {
     finishTest,
     resetTest
   } = useStudyStore();
-  const { submitIntento } = useAnalyticsStore();
+  const { mutate: submitIntento } = useSubmitIntento();
 
   const [isReviewing, setIsReviewing] = useState(false);
 

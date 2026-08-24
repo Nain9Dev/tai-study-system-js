@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.102.2",
+    "@tanstack/react-query-devtools": "^5.102.2",
     "@tanstack/react-router": "^1.170.32",
     "idb": "^8.0.3",
     "lucide-react": "^1.33.0",
@@ -24,6 +26,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
+    "orval": "^8.26.0",
     "oxlint": "^1.75.0",
     "typescript": "~6.0.2",
     "vite": "^8.2.0"

@@ -1,21 +1,13 @@
-import { useEffect } from 'react';
+import { useEstadisticasQuery } from '../../hooks/useQueries';
 import { useAnalyticsStore } from '../../store/useAnalyticsStore';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 
 export function Dashboard() {
-  const { 
-    estadisticas, 
-    isLoading, 
-    error, 
-    isOfflineMode, 
-    fetchEstadisticas, 
-    resetAnalytics 
-  } = useAnalyticsStore();
-
-  useEffect(() => {
-    fetchEstadisticas();
-  }, [fetchEstadisticas]);
+  const { data, isLoading, error } = useEstadisticasQuery();
+  const estadisticas = data?.data;
+  const isOfflineMode = data?.isOfflineMode;
+  const resetAnalytics = useAnalyticsStore((s) => s.resetAnalytics);
 
   const handleReset = () => {
     if (window.confirm("¿Estás seguro de que deseas borrar todo tu historial y estadísticas de estudio guardadas en este navegador?")) {
@@ -36,8 +28,8 @@ export function Dashboard() {
   if (error) {
     return (
       <Card title="Panel de Rendimiento Opositor">
-        <div style={{ padding: '1rem', backgroundColor: 'var(--color-danger)', color: '#fff', borderRadius: '4px' }}>
-          {error}
+        <div style={{ padding: '1rem', backgroundColor: 'var(--status-danger)', color: '#fff', borderRadius: '4px' }}>
+          {error instanceof Error ? error.message : 'Error al cargar estadísticas'}
         </div>
       </Card>
     );
