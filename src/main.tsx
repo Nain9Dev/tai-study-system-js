@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { routeTree } from './routeTree.gen';
 import { ApiError } from './api/client';
+import { offlineQueue } from './api/offlineQueue';
 import { useAuthStore } from './store/useAuthStore';
 import './styles/main.css';
 
@@ -42,6 +43,11 @@ declare module '@tanstack/react-router' {
 // Confirms with the API whether the persisted session is still valid. The cookie is
 // HttpOnly, so the only way to know is to ask.
 void useAuthStore.getState().hydrate();
+
+// Publishes the pending-write count so a reload with a queued exam shows it immediately.
+// The queue opens IndexedDB here rather than on import, so the module stays loadable
+// wherever IndexedDB is absent or blocked.
+void offlineQueue.initialize();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

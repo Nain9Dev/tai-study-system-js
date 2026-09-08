@@ -12,6 +12,8 @@ traced to a test in [`50-traceability.md`](50-traceability.md).
 | REQ-003 | When fewer questions are available than requested, the system shall say so before the exam starts rather than silently generating a shorter one. | Implemented |
 | REQ-004 | When exam mode is selected, the system shall show the time that will be allotted, at 54 seconds per question. | Implemented |
 | REQ-005 | When the API is unreachable, the system shall generate the exam from the bundled catalogue and say that it is doing so. | Implemented |
+| REQ-006 | When the API answers a read with 404, 408, 429 or a 5xx, the system shall fall back to the bundled catalogue rather than failing, because a deployed API missing an endpoint should degrade like an absent one. | Implemented |
+| REQ-007 | When the API answers with 400, 401, 403 or 409, the system shall surface the error rather than hiding it behind the catalogue. | Implemented |
 
 ## Exam engine
 
