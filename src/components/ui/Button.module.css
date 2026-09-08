@@ -1,84 +1,106 @@
+/* Button treatment lifted from naindev.com: gradient fill, lift on hover, press on active. */
+
 .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-2);
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--radius-md);
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 1rem;
-  transition: all var(--transition-base);
+  gap: 0.5rem;
+  /* 44px is the smallest reliably tappable target on a touch screen. */
+  min-height: 44px;
+  min-width: 44px;
+  padding: 12px 24px;
   border: 1px solid transparent;
-  position: relative;
-  overflow: hidden;
-  outline: none;
+  border-radius: 0.78rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  transition: all var(--transition-base);
 }
 
-.button:focus-visible {
-  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent-cyan);
+.button:hover:not(:disabled) {
+  transform: translateY(-4px);
 }
 
-.primary {
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-  color: #ffffff;
-  box-shadow: 0 4px 15px var(--accent-glow);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.primary:hover:not(:disabled) {
-  box-shadow: var(--shadow-glow);
-  transform: scale(1.02);
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
-}
-
-.primary:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.secondary {
-  background-color: var(--bg-glass);
-  color: var(--text-primary);
-  border-color: var(--border-color);
-  backdrop-filter: blur(var(--glass-blur));
-}
-
-.secondary:hover:not(:disabled) {
-  background-color: var(--bg-glass-hover);
-  border-color: var(--border-focus);
-  box-shadow: var(--shadow-glow);
-  transform: scale(1.02);
-}
-
-.secondary:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.danger {
-  background-color: rgba(239, 68, 68, 0.05);
-  color: var(--status-danger);
-  border-color: rgba(239, 68, 68, 0.3);
-  backdrop-filter: blur(var(--glass-blur));
-}
-
-.danger:hover:not(:disabled) {
-  background-color: rgba(239, 68, 68, 0.15);
-  border-color: var(--status-danger);
-  box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
-  transform: scale(1.02);
-}
-
-.danger:active:not(:disabled) {
-  transform: scale(0.98);
+.button:active:not(:disabled) {
+  transform: scale(0.96) translateY(0);
+  transition-duration: 100ms;
 }
 
 .button:disabled {
-  opacity: 0.5;
   cursor: not-allowed;
+  opacity: 0.55;
   transform: none;
-  box-shadow: none;
+}
+
+.primary {
+  background: linear-gradient(135deg, var(--color-primary), #6379e8);
+  color: var(--color-primary-ink);
+  box-shadow: var(--shadow-glow);
+}
+
+.primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--color-primary-strong), var(--color-primary));
+  box-shadow: 0 1.2rem 3rem rgba(87, 111, 232, 0.27);
+}
+
+.secondary {
+  border-color: var(--color-line);
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--color-text);
+}
+
+.secondary:hover:not(:disabled) {
+  border-color: var(--color-line-strong);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.ghost:hover:not(:disabled) {
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.danger {
+  border-color: var(--color-danger-line);
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.danger:hover:not(:disabled) {
+  background: rgba(248, 113, 113, 0.2);
+}
+
+.small {
+  min-height: 2.4rem;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.85rem;
 }
 
 .fullWidth {
   width: 100%;
+}
+
+/* Spinner shown while a button's action is in flight. */
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

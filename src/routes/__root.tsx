@@ -1,21 +1,26 @@
 import { createRootRoute, Outlet, redirect } from '@tanstack/react-router';
 import { BaseLayout } from '../components/layout/BaseLayout';
 import { useAuthStore } from '../store/useAuthStore';
-import '../styles/tokens.css';
-import '../styles/main.css';
+
+/** Routes reachable without a session or guest mode. */
+const PUBLIC_ROUTES = new Set(['/login', '/register']);
 
 export const Route = createRootRoute({
   beforeLoad: ({ location }) => {
-    const { isGuest, isAuthenticated } = useAuthStore.getState();
-    const isAuthRoute = location.pathname === '/login' || location.pathname === '/register';
-    
-    if (!isAuthenticated() && !isGuest && !isAuthRoute) {
-      throw redirect({ to: '/login' });
+    const { user, isGuest } = useAuthStore.getState();
+
+    if (user === null && !isGuest && !PUBLIC_ROUTES.has(location.pathname)) {
+      // `redirect` is carried so the candidate lands back where they were heading.
+      throw redirect({ to: '/login', search: { redirect: location.href } });
     }
   },
-  component: () => (
+  component: RootComponent,
+});
+
+function RootComponent() {
+  return (
     <BaseLayout>
       <Outlet />
     </BaseLayout>
-  ),
-})
+  );
+}

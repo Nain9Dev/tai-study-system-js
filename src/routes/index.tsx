@@ -2,26 +2,32 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useStudyStore } from '../store/useStudyStore';
 import { SetupForm } from '../features/study/SetupForm';
 import { ExamEngine } from '../features/exam/ExamEngine';
-import styles from './Dashboard.module.css';
+import styles from './Home.module.css';
 
 export const Route = createFileRoute('/')({
-  component: Index,
-})
+  component: Home,
+});
 
-function Index() {
-  const isTestActive = useStudyStore((state) => state.isTestActive);
-  const isTestFinished = useStudyStore((state) => state.isTestFinished);
+function Home() {
+  const phase = useStudyStore((state) => state.phase);
 
   return (
-    <>
-      <header className={styles.hero}>
-        <h1 className={styles.title}>Sistema de Oposiciones <span>TAI</span></h1>
-        <p className={styles.subtitle}>
-          Plataforma inteligente de autoevaluación interactiva con baremo oficial INAP (+1,0 / -0,33), modo de estudio en tiempo real y analítica persistente.
-        </p>
-      </header>
+    <div className="stack">
+      {phase === 'setup' && (
+        <header className={styles.hero}>
+          <span className="eyebrow">Oposiciones TAI · INAP</span>
+          <h1 className={styles.title}>
+            Practica como en el <span className="title-accent">examen real</span>
+          </h1>
+          <p className="lead">
+            Simulacros sobre los cuatro bloques del temario, corregidos con el baremo oficial
+            (+1,00 por acierto, −0,33 por fallo, 0,00 en blanco) y analítica que te dice en qué
+            bloque conviene insistir.
+          </p>
+        </header>
+      )}
 
-      {(!isTestActive && !isTestFinished) ? <SetupForm /> : <ExamEngine />}
-    </>
+      {phase === 'setup' ? <SetupForm /> : <ExamEngine />}
+    </div>
   );
 }

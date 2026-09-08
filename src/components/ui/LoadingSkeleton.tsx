@@ -1,16 +1,19 @@
 import styles from './LoadingSkeleton.module.css';
 
-interface SkeletonProps {
-  type?: 'card' | 'text' | 'title' | 'button';
+interface LoadingSkeletonProps {
+  variant?: 'text' | 'title' | 'card' | 'metric' | 'question';
   count?: number;
+  /** Described to assistive technology, which cannot see a shimmering placeholder. */
+  label?: string;
 }
 
-export function LoadingSkeleton({ type = 'card', count = 1 }: SkeletonProps) {
+export function LoadingSkeleton({ variant = 'card', count = 1, label = 'Cargando…' }: LoadingSkeletonProps) {
   return (
-    <>
-      {Array.from({ length: count }).map((_, idx) => (
-        <div key={idx} className={`${styles.skeleton} ${styles[type]}`}></div>
+    <div role="status" aria-live="polite" aria-busy="true">
+      <span className="visually-hidden">{label}</span>
+      {Array.from({ length: count }, (_, index) => (
+        <div key={index} className={`${styles.skeleton} ${styles[variant]}`} aria-hidden="true" />
       ))}
-    </>
+    </div>
   );
 }

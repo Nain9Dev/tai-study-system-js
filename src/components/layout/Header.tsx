@@ -1,46 +1,107 @@
-import { Link } from '@tanstack/react-router';
-import { Database, ServerCrash } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { apiClient } from '../../api/client';
+import { Link } from '@tanstack/react-router';
+import { Database, Menu, ServerCrash, X } from 'lucide-react';
+import { useConnectionStore } from '../../store/useConnectionStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import styles from './Header.module.css';
 
+const NAV_ITEMS = [
+  { to: '/', label: 'Simulacro', exact: true },
+  { to: '/analytics', label: 'Rendimiento', exact: false },
+  { to: '/perfil', label: 'Mi perfil', exact: false },
+] as const;
+
 export function Header() {
-  const [mode, setMode] = useState<'loading' | 'local' | 'static'>('loading');
+  const mode = useConnectionStore((state) => state.mode);
+  const isGuest = useAuthStore((state) => state.isGuest);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setMode(apiClient.getMode());
-    }, 1000);
-    return () => clearInterval(interval);
+    const onScroll = () => setIsScrolled(window.scrollY > 8);
+    onScroll();
+
+    // Passive: the listener never calls preventDefault, so the browser can keep scrolling
+    // smoothly instead of waiting to find out.
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   return (
-    <header className={styles.header}>
+    <header className={`${styles.header} ${isScrolled ? styles.scrolled : ''}`}>
       <div className={`shell ${styles.layout}`}>
-        <Link to="/" className={styles.brand}>
-          <span>NainDev</span> TAI
+        <Link to="/" className={styles.brand} onClick={() => setIsMenuOpen(false)}>
+          <span className={styles.brandMark} aria-hidden="true">
+            TAI
+          </span>
+          <span>
+            NainDev <span className={styles.brandName}>Oposiciones</span>
+          </span>
         </Link>
 
-        <nav className={styles.nav}>
-          <Link to="/" className={styles.link} activeProps={{ className: styles.linkActive }} activeOptions={{ exact: true }}>
-            Simulacro
-          </Link>
-          <Link to="/analytics" className={styles.link} activeProps={{ className: styles.linkActive }}>
-            Estadísticas
-          </Link>
-          <a href="https://www.naindev.com" className={styles.link} target="_blank" rel="noopener noreferrer">
+        <button
+          type="button"
+          className={styles.menuButton}
+          onClick={() => setIsMenuOpen((open) => !open)}
+          aria-expanded={isMenuOpen}
+          aria-controls="primary-navigation"
+          aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+        >
+          {isMenuOpen ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
+        </button>
+
+        <nav
+          id="primary-navigation"
+          className={`${styles.nav} ${isMenuOpen ? '' : styles.navCollapsed}`}
+          aria-label="Navegación principal"
+        >
+          {NAV_ITEMS.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className={styles.link}
+              activeProps={{ className: `${styles.link} ${styles.linkActive}` }}
+              activeOptions={{ exact: item.exact }}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {item.label}
+            </Link>
+          ))}
+
+          <a
+            href="https://www.naindev.com"
+            className={styles.link}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Portfolio
           </a>
-          <Link to="/perfil" className={styles.link} activeProps={{ className: styles.linkActive }}>
-            Mi Perfil
-          </Link>
         </nav>
 
-        <div className={`${styles.connectionBadge} ${mode === 'local' ? styles.connectionLocal : mode === 'static' ? styles.connectionStatic : ''}`}>
-          {mode === 'local' ? <Database size={16} /> : <ServerCrash size={16} />}
-          {mode === 'loading' ? 'Conectando...' : mode === 'local' ? 'API Conectada' : 'Modo Offline'}
-        </div>
+        <ConnectionPill mode={mode} isGuest={isGuest} />
       </div>
     </header>
+  );
+}
+
+function ConnectionPill({ mode, isGuest }: { mode: string; isGuest: boolean }) {
+  if (mode === 'connecting') {
+    return <span className={styles.status}>Conectando…</span>;
+  }
+
+  if (mode === 'offline') {
+    return (
+      <span className={`${styles.status} ${styles.offline}`}>
+        <ServerCrash size={14} aria-hidden="true" />
+        Modo local
+      </span>
+    );
+  }
+
+  return (
+    <span className={`${styles.status} ${styles.online}`}>
+      <Database size={14} aria-hidden="true" />
+      {isGuest ? 'Invitado' : 'Conectado'}
+    </span>
   );
 }
