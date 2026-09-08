@@ -19,6 +19,8 @@ Labels: `[A]` the agent completes it alone · `[M]` mixed, a human action closes
 | T-010 | Remove the dead generated client and the Vite template leftovers | `[A]` | ✅ `npm run typecheck` passes |
 | T-011 | Unit tests over marking, aggregation and normalisation | `[A]` | ✅ 48 tests, all green |
 | T-013 | Accessibility pass: labels, focus, live regions, reduced motion | `[A]` | ✅ Every control is labelled; no state depends on colour alone |
+| T-020 | Degrade to the bundled catalogue on a server error, not only on a network failure | `[A]` | ✅ Verified against the stale production API: the exam starts instead of breaking |
+| T-021 | Open IndexedDB on first use rather than on import | `[A]` | ✅ The module loads in Node, and no database is created for a visitor who never goes offline |
 
 ## Next
 
@@ -43,5 +45,7 @@ Labels: `[A]` the agent completes it alone · `[M]` mixed, a human action closes
   `50-traceability.md`. Two bugs surfaced during it and are fixed: the mobile menu icon was
   inverted, and a whitespace-only block selector normalised to an empty string instead of
   the wildcard.
-- **Next:** T-012, then T-014.
+- **Next:** the client is ready; what is missing is on the API side. Until the Render
+  service is redeployed from `main`, the application runs on the bundled catalogue and
+  says so. Then T-012 and T-014.
 - **Blocked:** nothing. See [`41-blockers.md`](41-blockers.md).

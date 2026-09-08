@@ -34,6 +34,23 @@ export class QueuedOfflineError extends Error {
 const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 const DEFAULT_TIMEOUT_MS = 10_000;
 
+/**
+ * Statuses on which a read falls back to the bundled catalogue.
+ *
+ * A 404 means the deployed API does not know this endpoint — version skew between the
+ * client and the server, which is exactly when degrading is most valuable. A 5xx means it
+ * knows the endpoint and cannot serve it. In both cases stale content beats a blank page.
+ *
+ * Deliberately excluded: 400, 401, 403 and 409. Those are answers, not failures, and
+ * hiding them behind the offline catalogue would turn "your session expired" into
+ * "here are some questions from 2026".
+ */
+const DEGRADABLE_STATUSES = new Set([404, 408, 429]);
+
+export function shouldDegradeToStatic(status: number): boolean {
+  return status >= 500 || DEGRADABLE_STATUSES.has(status);
+}
+
 interface RequestOptions {
   method?: string;
   body?: unknown;
@@ -101,6 +118,18 @@ class ApiClient {
         }
 
         notifyUnauthorized();
+      }
+
+      // The API answered, but with something it cannot serve. For a read with a bundled
+      // catalogue behind it, that is still a reason to degrade rather than to break: a
+      // deployed API missing an endpoint the client knows about would otherwise leave the
+      // candidate looking at an error instead of practising.
+      if (!response.ok && method === 'GET' && options.staticFallback && shouldDegradeToStatic(response.status)) {
+        console.warn(
+          `[api] GET ${path} respondió ${response.status}. Se usa el catálogo local.`,
+        );
+        setConnectionMode('offline');
+        return this.readStatic<T>(options.staticFallback);
       }
 
       return await this.readBody<T>(response, path);

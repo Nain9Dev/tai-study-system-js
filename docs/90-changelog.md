@@ -1,5 +1,33 @@
 # 90 — Changelog
 
+## 2026-09-08 — Degrade on server errors
+
+The deployed API predates the `/api/preguntas` endpoints, so every read returned 404 and the
+application showed the candidate nothing — with a full offline catalogue sitting in the
+bundle, unused.
+
+### Fixed
+
+- **A read now degrades on a server error, not only on a network failure.** The fallback
+  only ran when `fetch` threw; a 404 or a 5xx became an error and was rethrown. An
+  unreachable server degraded gracefully while a reachable one missing an endpoint broke the
+  page, which is the worse outcome from the less severe failure — ADR-0006.
+  400, 401, 403 and 409 still surface: they are answers, and hiding an expired session
+  behind the catalogue would let the candidate practise while nothing was being recorded.
+- **The offline queue opened IndexedDB on import.** That made the module unloadable wherever
+  IndexedDB is absent — it threw in Node, so `client.ts` could not be tested at all — and in
+  a browser it created a database for every visitor, including those who never go offline.
+  Now opened on first use, with an explicit `initialize()` at start-up to publish the
+  pending count.
+
+### Verification
+
+Built against the stale production URL and run in a browser: the exam starts from the
+bundled catalogue, the indicator reads `MODO LOCAL`, and the banner explains why. The same
+run previously produced an unusable page and three 404s in the console.
+
+60 unit tests, including the degradation policy.
+
 ## 2026-09-08 — Client rewrite
 
 ### Fixed — the interface was rendering on undefined values

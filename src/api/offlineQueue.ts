@@ -31,10 +31,17 @@ const MAX_ATTEMPTS = 5;
  * without serialising by hand, and never blocks the main thread.
  */
 class OfflineQueue {
-  private readonly dbPromise: Promise<IDBPDatabase>;
+  private dbPromise: Promise<IDBPDatabase> | null = null;
 
-  constructor() {
-    this.dbPromise = openDB(DB_NAME, DB_VERSION, {
+  /**
+   * Opens the database on first use rather than on import.
+   *
+   * Opening it in the constructor meant the module could not be imported anywhere without
+   * IndexedDB present — it threw in Node, and in a browser it created a database for every
+   * visitor, including the ones who never go offline.
+   */
+  private db(): Promise<IDBPDatabase> {
+    this.dbPromise ??= openDB(DB_NAME, DB_VERSION, {
       upgrade(db) {
         if (!db.objectStoreNames.contains(STORE_NAME)) {
           const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
@@ -43,11 +50,19 @@ class OfflineQueue {
       },
     });
 
-    void this.publishCount();
+    return this.dbPromise;
+  }
+
+  /**
+   * Publishes the pending count so a reload with queued writes shows them straight away.
+   * Called once at start-up; failure is not fatal, the queue simply does not persist.
+   */
+  async initialize(): Promise<void> {
+    await this.publishCount();
   }
 
   async enqueue(path: string, method: string, body: unknown): Promise<void> {
-    const db = await this.dbPromise;
+    const db = await this.db();
 
     await db.put(STORE_NAME, {
       id: crypto.randomUUID(),
@@ -62,14 +77,14 @@ class OfflineQueue {
   }
 
   async pending(): Promise<QueuedRequest[]> {
-    const db = await this.dbPromise;
+    const db = await this.db();
     const all = (await db.getAll(STORE_NAME)) as QueuedRequest[];
     // Oldest first: replaying an exam out of order would scramble the history.
     return all.sort((a, b) => a.timestamp - b.timestamp);
   }
 
   async count(): Promise<number> {
-    const db = await this.dbPromise;
+    const db = await this.db();
     return db.count(STORE_NAME);
   }
 
@@ -118,19 +133,19 @@ class OfflineQueue {
   }
 
   async remove(id: string): Promise<void> {
-    const db = await this.dbPromise;
+    const db = await this.db();
     await db.delete(STORE_NAME, id);
     await this.publishCount();
   }
 
   async clear(): Promise<void> {
-    const db = await this.dbPromise;
+    const db = await this.db();
     await db.clear(STORE_NAME);
     await this.publishCount();
   }
 
   private async recordAttempt(request: QueuedRequest, attempts: number): Promise<void> {
-    const db = await this.dbPromise;
+    const db = await this.db();
     await db.put(STORE_NAME, { ...request, attempts });
   }
 
