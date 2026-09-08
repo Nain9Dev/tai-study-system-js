@@ -1,64 +1,107 @@
-# React + TypeScript + Vite
+# Simulacros TAI — Web client
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
+[![Method](https://img.shields.io/badge/Method-Spec%20Driven%20Development-0A7EA4)](docs/README.md)
 
-Currently, two official plugins are available:
+Exam simulator for the Spanish **TAI** civil service examination (Técnico Auxiliar de
+Informática, INAP). It generates practice exams from the official syllabus, marks them under
+the official scale, and shows a candidate where their study time is best spent.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+It works with no backend at all: reads fall back to a bundled catalogue and attempts are
+kept on the device until connectivity returns.
 
-## React Compiler
+## Features
 
-The React# Sistema Oposiciones TAI - Frontend Híbrido
+- **Two modes.** *Study* corrects each answer immediately and explains it. *Exam* mirrors
+  the real conditions: a countdown, hidden answers, and the official scale.
+- **Exam engine.** One question at a time, a palette showing what is answered, keyboard
+  navigation (arrows to move, A–D to answer), and a clock that closes the exam when it
+  expires.
+- **Official INAP marking.** +1.00 per correct answer, −0.33 per wrong one, 0.00 for a
+  blank. Previewed instantly on the device; decided by the server.
+- **Performance dashboard.** Average grade, accuracy, per-block breakdown ordered weakest
+  first, and the trend over recent exams.
+- **Works offline.** Exams sat without signal are queued in IndexedDB and replayed later.
+  A reload mid-exam restores the answer sheet and the clock.
 
-Este es el repositorio del frontend para el Sistema de Oposiciones TAI, refactorizado usando React 19, TypeScript, Vite, TanStack Router y Zustand.
+## Quick start
 
-## 🚀 Arquitectura de Conexión Híbrida
-
-El sistema implementa un cliente API que soporta un modelo híbrido:
-
-1. **Online (API-First)**: El frontend intenta conectarse a la API `.NET` especificada en las variables de entorno.
-2. **Offline (Fallback)**: Si la API no responde, devuelve un error 500, o se produce un timeout, el sistema hace fallback automáticamente a los archivos JSON estáticos en `/public/data`. La interfaz indicará visualmente que se encuentra en Modo Offline.
-
-### ⚙️ Configuración de Entorno
-
-Para levantar la aplicación correctamente conectado al backend local, asegúrate de tener el archivo `.env` configurado:
-
-```env
-VITE_API_BASE_URL=http://localhost:5298/api
+```bash
+npm install
 ```
 
-Para producción, utiliza el archivo `.env.production` (Vercel lo inyecta).
-
-### 🛠️ Flujo de Comunicación (Zustand + React)
-
-- Los componentes se suscriben a los custom hooks (`usePreguntas`, `useApi`).
-- La capa `client.ts` centraliza las peticiones `fetch` nativas e inyecta los headers y el Auth Token.
-- Los errores (ej. 401, 500) se lanzan como `ApiError` y los stores de Zustand los guardan en el estado `error` para que la UI muestre el aviso oportuno.
-- Al guardar un **Intento**, si el sistema está offline, el historial se persiste exclusivamente en `localStorage` (`nain_tai_analytics_v1`).
-
-### 📦 Desarrollo Local
-
-1. Instalar dependencias: `npm install`
-2. Levantar servidor frontend: `npm run dev`
-3. Asegurarse de tener el backend corriendo: `dotnet run` (en la carpeta `Oposiciones.Api`).impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Runs on `http://localhost:5173`. It works without a backend; to connect one, see
+[`docs/60-runbook.md`](docs/60-runbook.md).
+
+## Verification
+
+```bash
+npm run verify
+```
+
+Typecheck, lint, 48 unit tests and the production build. Nothing is considered done until
+it passes.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    ROUTES["routes/"] --> FEATURES["features/"]
+    FEATURES --> UI["components/"]
+    FEATURES --> HOOKS["hooks/"]
+    HOOKS --> API["api/client.ts"]
+    HOOKS --> STORES["store/ (Zustand)"]
+    FEATURES --> UTILS["utils/ (marking)"]
+    API --> BACKEND[("Oposiciones.Api")]
+    API -.->|fallback| STATIC[("public/data")]
+
+    style ROUTES fill:#512BD4,stroke:#fff,stroke-width:2px,color:#fff
+    style API fill:#182B49,stroke:#fff,stroke-width:2px,color:#fff
+    style BACKEND fill:#CC292B,stroke:#fff,color:#fff
+    style STATIC fill:#8B5A00,stroke:#fff,color:#fff
+```
+
+Server data lives in TanStack Query, client state in Zustand, and the network is reached
+through exactly one module. Details in [`docs/20-architecture.md`](docs/20-architecture.md).
+
+## Design
+
+The visual language is [naindev.com](https://www.naindev.com)'s, adopted wholesale: the same
+tokens, typography, ambient background and component treatments. Both properties are
+published under the same identity, so looking like a different product undermines them both.
+
+Typefaces are self-hosted. Every feedback state carries an icon and a border as well as a
+hue, the interface is fully keyboard-operable, and decorative motion is skipped for viewers
+who ask for that. See [`docs/21-design-system.md`](docs/21-design-system.md).
+
+## Documentation
+
+This repository follows **Spec Driven Development**: every change starts in a document.
+Start at [`docs/README.md`](docs/README.md).
+
+- [Charter](docs/00-charter.md) · [Requirements](docs/10-requirements.md) ·
+  [Open questions](docs/11-open-questions.md)
+- [Architecture](docs/20-architecture.md) · [Design system](docs/21-design-system.md)
+- [Decisions](docs/30-decisions/) — five ADRs
+- [Tasks](docs/40-tasks.md) · [Blockers](docs/41-blockers.md)
+- [Traceability](docs/50-traceability.md) · [Runbook](docs/60-runbook.md) ·
+  [Changelog](docs/90-changelog.md)
+
+Agent instructions live in [`AGENTS.md`](AGENTS.md).
+
+## API
+
+The backend is a separate repository:
+[SistemaOposicionesTAI](https://github.com/Nain9Dev/SistemaOposicionesTAI) — .NET 10, Clean
+Architecture, PostgreSQL. `swagger.json` in this repository is the checked-in record of the
+contract.
+
+## Author
+
+Built by [NainDev (Aitor Nain)](https://github.com/Nain9Dev).
