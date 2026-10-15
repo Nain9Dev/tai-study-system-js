@@ -1,5 +1,11 @@
 # Simulacros TAI — Web client
 
+> [!NOTE]
+> **Repository Consolidated into Monorepo**  
+> This frontend client has been consolidated into the unified full-stack repository:  
+> **[SistemaOposicionesTAI](https://github.com/Nain9Dev/SistemaOposicionesTAI)** (under `Tai.Client/`).  
+> All future development, contract updates, and releases happen in `SistemaOposicionesTAI`.
+
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
